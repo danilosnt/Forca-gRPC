@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Jogo da Forca</title>
+</head>
+<body>
+  <section id="tela-entrada" class="tela tela-entrada">
+    <h1>Forca</h1>
+    <p class="subtitulo">Um escolhe a palavra. O outro tenta salvar o boneco.</p>
+    <form id="form-entrada" class="cartao">
+      <label for="apelido">Seu apelido</label>
+      <input id="apelido" maxlength="20" autocomplete="nickname" required autofocus>
+      <button type="submit">Entrar</button>
+    </form>
+  </section>
+
+  <section id="tela-lobby" class="tela" hidden>
+    <header class="topo">
+      <h1>Salas</h1>
+      <span id="lobby-apelido" class="apelido"></span>
+    </header>
+    <form id="form-sala" class="linha-form">
+      <input id="nome-sala" maxlength="30" placeholder="Nome da nova sala" aria-label="Nome da nova sala" autocomplete="off" required>
+      <button type="submit">Criar sala</button>
+    </form>
+    <ul id="lista-salas" class="lista-salas"></ul>
+    <p id="sem-salas" class="vazio">Nenhuma sala aberta. Crie a primeira.</p>
+  </section>
+
+  <section id="tela-sala" class="tela" hidden>
+    <header class="topo">
+      <div>
+        <h1 id="sala-nome"></h1>
+        <p id="placar" class="placar"></p>
+        <span id="papel" class="papel"></span>
+      </div>
+      <button id="btn-sair" type="button" class="secundario">Sair da sala</button>
+    </header>
+
+    <div class="mesa">
+      <svg class="forca" viewBox="0 0 200 230" role="img" aria-labelledby="forca-titulo">
+        <title id="forca-titulo">Forca</title>
+        <path class="estrutura" d="M20 215h110M50 215V15h85v28M50 55l35-40" />
+        <circle class="boneco" data-erro="1" cx="135" cy="62" r="19" />
+        <path class="boneco" data-erro="2" d="M135 81v62" />
+        <path class="boneco" data-erro="3" d="M135 96l-28 26" />
+        <path class="boneco" data-erro="4" d="M135 96l28 26" />
+        <path class="boneco" data-erro="5" d="M135 143l-24 38" />
+        <path class="boneco" data-erro="6" d="M135 143l24 38" />
+      </svg>
+
+      <div class="painel">
+        <p id="status" class="status" role="status"></p>
+
+        <form id="form-palavra" class="cartao" hidden>
+          <label for="palavra">Palavra secreta</label>
+          <input id="palavra" maxlength="40" placeholder="Ex.: casa ou guarda-chuva" autocomplete="off" spellcheck="false" required>
+          <label for="dica">Dica (opcional)</label>
+          <input id="dica" maxlength="60" autocomplete="off">
+          <button type="submit">Definir palavra</button>
+        </form>
+
+        <div id="rodada" hidden>
+          <div id="palavra-oculta" class="palavra-oculta"></div>
+          <p id="dica-texto" class="dica"></p>
+          <p id="contador-erros" class="contador"></p>
+          <div id="teclado" class="teclado"></div>
+          <form id="form-arriscar" class="linha-form">
+            <input id="palpite" maxlength="40" placeholder="Arriscar a palavra inteira" aria-label="Arriscar a palavra inteira" autocomplete="off" spellcheck="false" required>
+            <button type="submit" class="secundario">Arriscar</button>
+          </form>
+          <button id="btn-nova-rodada" type="button" hidden>Próxima rodada</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div id="aviso" class="aviso" role="alert" hidden></div>
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>

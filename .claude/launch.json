@@ -1,0 +1,17 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "forca-backend",
+      "runtimeExecutable": "java",
+      "runtimeArgs": ["-jar", "backend/target/forca-backend.jar"],
+      "port": 8080
+    },
+    {
+      "name": "forca-frontend",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["--prefix", "frontend", "run", "dev"],
+      "port": 5173
+    }
+  ]
+}
