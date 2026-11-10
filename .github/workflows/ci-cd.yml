@@ -1,0 +1,64 @@
+# CI/CD do jogo da forca.
+# Em todo push e pull request: roda os testes do backend e o build do frontend.
+# Em push na main (inclusive merge de pull request): publica na VPS se os testes passarem.
+name: CI/CD
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+env:
+  VPS_HOST: 179.199.134.167
+  # Chave pública do servidor, para o SSH recusar uma máquina que se passe pela VPS.
+  VPS_HOST_KEY: "179.199.134.167 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIO3U55g62s9foamdUGZNsJoPC2OazaTs7KpFhW3dH1L8"
+
+jobs:
+  testes:
+    name: Testes e build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: maven
+
+      - name: Testes do backend
+        working-directory: backend
+        run: mvn -B test
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Build do frontend
+        working-directory: frontend
+        run: |
+          npm ci
+          npm run build
+
+  deploy:
+    name: Deploy na VPS
+    needs: testes
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    concurrency:
+      group: deploy-vps
+      cancel-in-progress: false
+    steps:
+      - name: Atualizar a VPS
+        env:
+          SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
+        run: |
+          mkdir -p ~/.ssh
+          printf '%s\n' "$SSH_KEY" > ~/.ssh/deploy
+          chmod 600 ~/.ssh/deploy
+          printf '%s\n' "$VPS_HOST_KEY" > ~/.ssh/known_hosts
+          # A chave só tem permissão de rodar o script de deploy da VPS.
+          ssh -i ~/.ssh/deploy "root@$VPS_HOST"

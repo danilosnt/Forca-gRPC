@@ -19,6 +19,8 @@ sis-dis/
 │       ├── api/                 stub do cliente RPC
 │       ├── ui/                  telas do lobby e da sala
 │       └── styles/              estilos
+├── deploy/forca-deploy.sh   script de deploy executado na VPS
+├── .github/workflows/       CI/CD (testes e deploy)
 └── docker-compose.yml       sobe API e interface juntas (deploy)
 ```
 
@@ -112,6 +114,27 @@ placares ficam só na memória, então se perdem ao reiniciar a API.
 Para HTTPS, coloque um proxy com certificado (Caddy, Traefik ou o nginx da
 própria VPS) na frente da porta do frontend. A interface passa a usar `wss://`
 automaticamente quando a página é aberta por `https://`.
+
+## CI/CD (GitHub Actions)
+
+O workflow [`.github/workflows/ci-cd.yml`](.github/workflows/ci-cd.yml) roda a
+cada push e pull request:
+
+1. **Testes e build:** `mvn test` no backend e `npm run build` no frontend.
+2. **Deploy:** só em push na `main` (inclusive o merge de um pull request) e só
+   se o passo 1 passar. O GitHub entra na VPS por SSH e roda o script
+   [`deploy/forca-deploy.sh`](deploy/forca-deploy.sh), que baixa a versão nova
+   da `main` e reconstrói os containers.
+
+A chave usada pelo GitHub fica no segredo `VPS_SSH_KEY` do repositório. Na VPS,
+ela está limitada a executar `/usr/local/bin/forca-deploy`: não abre terminal
+nem roda outros comandos. Se o script mudar, copie a versão nova para a VPS:
+
+```bash
+scp deploy/forca-deploy.sh root@IP-DA-VPS:/usr/local/bin/forca-deploy
+```
+
+Para publicar de novo sem mudar código, use "Run workflow" na aba Actions.
 
 ## Regras
 
