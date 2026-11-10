@@ -11,10 +11,9 @@ exec 9>/var/lock/forca-deploy.lock
 flock 9
 
 cd "$PASTA"
-if [ ! -d .git ]; then
-  git init -q
-  git remote add origin "$REPOSITORIO"
-fi
+[ -d .git ] || git init -q
+git remote remove origin 2>/dev/null || true
+git remote add origin "$REPOSITORIO"
 
 git fetch -q --depth 1 origin "$RAMO"
 git reset -q --hard FETCH_HEAD
