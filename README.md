@@ -12,12 +12,14 @@ sis-dis/
 │       ├── api/                 WebSocket e métodos remotos
 │       ├── rpc/                 protocolo JSON-RPC 2.0
 │       └── dominio/             regras do jogo, salas e concorrência
-└── frontend/                Interface web (Vite)
-    └── src/
-        ├── main.js              ponto de entrada
-        ├── api/                 stub do cliente RPC
-        ├── ui/                  telas do lobby e da sala
-        └── styles/              estilos
+├── frontend/                Interface web (Vite)
+│   ├── nginx.conf               servidor da interface e proxy do /rpc (Docker)
+│   └── src/
+│       ├── main.js              ponto de entrada
+│       ├── api/                 stub do cliente RPC
+│       ├── ui/                  telas do lobby e da sala
+│       └── styles/              estilos
+└── docker-compose.yml       sobe API e interface juntas (deploy)
 ```
 
 ## Como rodar
@@ -62,6 +64,54 @@ Para rodar os testes do backend:
 ```bash
 mvn test
 ```
+
+## Deploy com Docker (VPS)
+
+O `docker-compose.yml` sobe dois containers:
+
+| Container  | O que faz                                                   | Porta                    |
+|------------|-------------------------------------------------------------|--------------------------|
+| `backend`  | API Java (jar gerado dentro da imagem)                      | 8080, só na rede interna |
+| `frontend` | nginx: serve a interface e repassa `/rpc` para a API        | 80, pública              |
+
+O navegador fala só com o nginx: a página e o WebSocket usam o mesmo endereço
+(`ws://SEU-SERVIDOR/rpc`), então não é preciso abrir a porta 8080 nem configurar
+`VITE_API_URL`.
+
+Na VPS, com Docker e o plugin Compose instalados:
+
+```bash
+git clone URL-DO-REPOSITORIO forca && cd forca
+```
+
+```bash
+docker compose up -d --build
+```
+
+Abra `http://IP-DA-VPS` nos dois dispositivos. Se a porta 80 já estiver em uso,
+copie `.env.example` para `.env` e troque `PORTA`. Libere essa porta no firewall
+da VPS (por exemplo, `sudo ufw allow 80/tcp`).
+
+Comandos do dia a dia:
+
+```bash
+docker compose logs -f
+```
+
+```bash
+git pull && docker compose up -d --build
+```
+
+```bash
+docker compose down
+```
+
+Os containers reiniciam sozinhos se caírem ou se a VPS reiniciar. Salas e
+placares ficam só na memória, então se perdem ao reiniciar a API.
+
+Para HTTPS, coloque um proxy com certificado (Caddy, Traefik ou o nginx da
+própria VPS) na frente da porta do frontend. A interface passa a usar `wss://`
+automaticamente quando a página é aberta por `https://`.
 
 ## Regras
 

@@ -1,0 +1,22 @@
+# Sobe o jogo inteiro: a API (backend) e a interface com o proxy (frontend).
+# Só a porta do frontend fica aberta; a API é acessada pelo nginx, na rede interna.
+name: forca
+
+services:
+  backend:
+    build: ./backend
+    image: forca-backend
+    restart: unless-stopped
+    environment:
+      PORT: "8080"
+    expose:
+      - "8080"
+
+  frontend:
+    build: ./frontend
+    image: forca-frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "${PORTA:-80}:80"

@@ -1,7 +1,13 @@
 // Stub do cliente: uma função para cada método remoto da API.
 import { ClienteRpc } from './rpcClient.js';
 
-const URL_API = import.meta.env.VITE_API_URL ?? `ws://${location.hostname}:8080/rpc`;
+// Em desenvolvimento a API roda à parte, na porta 8080. No build de produção
+// (Docker), o nginx serve a página e repassa /rpc para a API no mesmo endereço.
+const URL_PADRAO = import.meta.env.DEV
+  ? `ws://${location.hostname}:8080/rpc`
+  : `${location.protocol === 'https:' ? 'wss' : 'ws'}://${location.host}/rpc`;
+
+const URL_API = import.meta.env.VITE_API_URL || URL_PADRAO;
 
 const rpc = new ClienteRpc();
 
