@@ -3,7 +3,7 @@
 # A chave SSH do GitHub Actions só consegue executar este script.
 set -euo pipefail
 
-REPOSITORIO="https://github.com/danilosnt/sis-dis.git"
+REPOSITORIO="https://github.com/danilosnt/Forca-gRPC.git"
 PASTA="/opt/forca"
 RAMO="main"
 
